@@ -9,7 +9,7 @@ app.get("/sesiones", async (req, res) => {
 	const { anio, pais } = req.query;
 	
 	try {
-    const response = await axios.get("https://api.openf1.org/v1/sessions", {
+    const response = await axios.get(`https://api.openf1.org/v1/sessions`, {
       params: {
         year: anio,
         country_name: pais
