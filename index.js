@@ -29,18 +29,48 @@ app.get("/resultados", async (req, res) => {
   const { anio, pais, sesion } = req.query;
 
   try {
-    const response = await axios.get(`https://api.openf1.org/v1/laps`, {
-      params: {
-		session_key: sesion
+    // 1. Obtener posiciones
+    const posicionesResponse = await axios.get(`https://api.openf1.org/v1/position`, {
+      params: { session_key: sesion }
+    });
+
+    // 2. Obtener información de pilotos
+    const driversResponse = await axios.get(`https://api.openf1.org/v1/drivers`);
+
+    const posiciones = posicionesResponse.data;
+    const drivers = driversResponse.data;
+
+    // 3. Última posición registrada por piloto
+    const ultimasPosiciones = {};
+    posiciones.forEach((registro) => {
+      const piloto = registro.driver_number;
+      if (
+        !ultimasPosiciones[piloto] ||
+        new Date(registro.date) > new Date(ultimasPosiciones[piloto].date)
+      ) {
+        ultimasPosiciones[piloto] = registro;
       }
     });
 
-    const resultado = response.data;
+    // 4. Armar clasificación final cruzada con team_name
+    const clasificacionFinal = Object.values(ultimasPosiciones)
+      .filter(p => p.position !== null)
+      .sort((a, b) => a.position - b.position)
+      .map((p) => {
+        const infoPiloto = drivers.find(d => d.driver_number === p.driver_number) || {};
+        return {
+          piloto: p.driver_number,
+          posicion: p.position,
+          tiempo: p.date,
+          team_name: infoPiloto.team_name || "Desconocido",
+          nombre: infoPiloto.full_name || "N/D"
+        };
+      });
 
-    res.json({ resultado });
+    res.json({ pais, anio, sesion, resultado_final: clasificacionFinal });
   } catch (error) {
-    console.error("Error al obtener resultado:", error.message);
-    res.status(500).json({ error: "Error al consultar OpenF1" });
+    console.error("Error al obtener resultado final:", error.message);
+    res.status(500).json({ error: "Error al procesar el resultado final" });
   }
 });
 
