@@ -14,7 +14,7 @@ app.get("/sesiones", async (req, res) => {
         year: anio,
         country_name: pais
       }
-	console.log(`const: ` response);
+
 	const sesiones = response.data;
 
     // Mapeamos solo los datos relevantes
