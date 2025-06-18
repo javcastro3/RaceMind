@@ -9,12 +9,12 @@ app.get("/sesiones", async (req, res) => {
 	const { anio, pais } = req.query;
 	
 	try {
-    const response = await axios.get(`https://api.openf1.org/v1/sessions`, {
+    const response = await axios.get("https://api.openf1.org/v1/sessions", {
       params: {
         year: anio,
         country_name: pais
       }
-
+	  
 	const sesiones = response.data;
 
     // Mapeamos solo los datos relevantes
@@ -36,7 +36,7 @@ app.get("/sesiones", async (req, res) => {
     console.error("Error al obtener datos de OpenF1:", error.message);
     res.status(500).json({ error: "Error al consultar OpenF1" });
   }
-})
+});
 
 app.get("/clima", async (req, res) => {
   const ciudad = req.query.ciudad;
