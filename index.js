@@ -31,8 +31,6 @@ app.get("/resultados", async (req, res) => {
   try {
     const response = await axios.get(`https://api.openf1.org/v1/laps`, {
       params: {
-        year: anio,
-        country_name: pais,
 		session_key: sesion
       }
     });
