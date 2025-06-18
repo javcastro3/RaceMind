@@ -25,6 +25,28 @@ app.get("/sesiones", async (req, res) => {
   }
 });
 
+app.get("/resultados", async (req, res) => {
+  const { anio, pais, sesion } = req.query;
+
+  try {
+    const response = await axios.get(`https://api.openf1.org/v1/sessions`, {
+      params: {
+        year: anio,
+        country_name: pais,
+		session_key: sesion
+      }
+    });
+
+    const resultado = response.data;
+
+    res.json({ resultado });
+  } catch (error) {
+    console.error("Error al obtener resultado:", error.message);
+    res.status(500).json({ error: "Error al consultar OpenF1" });
+  }
+});
+
+
 app.get("/clima", async (req, res) => {
   const ciudad = req.query.ciudad;
 
