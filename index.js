@@ -29,18 +29,20 @@ app.get("/resultados", async (req, res) => {
   const { anio, pais, sesion } = req.query;
 
   try {
-    // 1. Obtener posiciones
+    // 1. Posiciones finales
     const posicionesResponse = await axios.get(`https://api.openf1.org/v1/position`, {
       params: { session_key: sesion }
     });
 
-    // 2. Obtener información de pilotos
-    const driversResponse = await axios.get(`https://api.openf1.org/v1/drivers`);
+    // 2. Pilotos filtrados por esa sesión
+    const driversResponse = await axios.get(`https://api.openf1.org/v1/drivers`, {
+      params: { session_key: sesion }
+    });
 
     const posiciones = posicionesResponse.data;
     const drivers = driversResponse.data;
 
-    // 3. Última posición registrada por piloto
+    // Última posición registrada por piloto
     const ultimasPosiciones = {};
     posiciones.forEach((registro) => {
       const piloto = registro.driver_number;
@@ -52,7 +54,6 @@ app.get("/resultados", async (req, res) => {
       }
     });
 
-    // 4. Armar clasificación final cruzada con team_name
     const clasificacionFinal = Object.values(ultimasPosiciones)
       .filter(p => p.position !== null)
       .sort((a, b) => a.position - b.position)
